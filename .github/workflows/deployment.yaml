@@ -1,0 +1,106 @@
+name: Build, Push and Deploy to Kubernetes
+
+on:
+  push:
+    branches:
+      - dev 
+      - main # Trigger action on pushes to main branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Log in to Docker container Registry
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build Docker image
+      run: |
+        docker build -f app.api/app.dockerfile  -t quyencl91/max-weather:${{ github.sha }} .
+      
+    - name: Push Docker image to Docker hub
+      run: |
+        docker push quyencl91/max-weather:${{ github.sha }}
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+    
+    - name: Update kube config
+      run: aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }} --region ${{ secrets.AWS_REGION }}
+
+    - name: Apply Kubernetes manifest
+      run: |
+        ENV=prod
+        if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+          ENV=dev
+        fi
+        echo "current env deploy: ${ENV}"
+        sed -i "s|ENV|${ENV}|g" app.api/k8s/manifest.yaml
+        sed -i "s|CONTAINER_REGISTRY_BASE_URI|quyencl91/max-weather:${{ github.sha }}|g" app.api/k8s/manifest.yaml
+
+        echo "viewing the manifest"
+        cat app.api/k8s/manifest.yaml
+        kubectl apply -f app.api/k8s/manifest.yaml
+        kubectl rollout status deployment/app-api -n max-weather-${ENV}
+  tvt:
+    needs: deploy
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Run multiple shell commands
+        run: |
+          ENV=prod
+          if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+            ENV=dev
+          fi
+          echo "Process TVT"
+          URL="https://${ENV}-api.quyennv.com/v1/ping"
+          MAX_RETRIES=5
+          DELAY=2
+          attempt=0
+          sleep 10
+          # Function to perform curl and handle retries
+          while (( attempt < MAX_RETRIES )); do
+              echo "Attempt $((attempt + 1)) to test URL: $URL"
+              # Perform the curl request
+              curl --fail --silent --show-error "$URL" && {
+                  echo "URL responded successfully."
+                  exit 0
+              }
+              ((attempt++))
+              if (( attempt < MAX_RETRIES )); then
+                  echo "Retrying in $DELAY seconds..."
+                  sleep $DELAY
+              fi
+          done
+
+          # If all attempts fail, throw an error
+          echo "Error: URL test failed after $MAX_RETRIES attempts."
+          exit 1

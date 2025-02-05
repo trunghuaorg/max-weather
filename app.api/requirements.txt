@@ -1,0 +1,11 @@
+flask_cors
+requests
+redis
+python-dotenv==0.19.0
+jproperties
+PyJWT
+flask-login
+flask==2.2.5
+Werkzeug==2.2.2
+Flask-APScheduler
+passlib
