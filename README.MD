@@ -31,8 +31,14 @@ tvt: is step verify that is application up
 **POSTMAN TEST**
 
 1. authentication!
-[alt text](report-resources/login-api.png)
+![alt text](report-resources/cicd.png)
 2. query with valid token
 ![alt text](report-resources/valid-token.png)
 3. invalid token
 ![alt text](report-resources/invalid-token.png)
+
+**EKS DEPLOYMENT**
+
+
+all environment is deployment to eks
+![alt text](report-resources/eks-deploy.png)
