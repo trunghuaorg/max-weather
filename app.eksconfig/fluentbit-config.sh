@@ -25,3 +25,16 @@ kubectl apply -f https://raw.githubusercontent.com/aws-samples/amazon-cloudwatch
 
 echo "Validating the config"
 kubectl get pods -n amazon-cloudwatch
+
+echo "Running provision OIDC"
+eksctl utils associate-iam-oidc-provider --region=$awsregion --cluster=$eksclustername --profile $awsprofile --approve
+
+eksctl create iamserviceaccount \
+    --name fluent-bit \
+    --namespace amazon-cloudwatch \
+    --cluster $eksclustername \
+    --attach-policy-arn "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy" \
+    --approve \
+    --override-existing-serviceaccounts \
+    --profile $awsprofile \
+    --region $awsregion \

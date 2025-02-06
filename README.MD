@@ -1,3 +1,8 @@
+**PROJECT DIAGRAM**
+
+![alt text](report-resources/Infra%20diagram.drawio.png)
+
+
 **PROJECT STRUCTURE**
 
 1. app.api → Contains the API implementation with a self-implemented OAuth2 system. The codebase is written in Python.
@@ -11,6 +16,8 @@
 5. .github → Contains the CI/CD pipeline configuration.
 
 6. report-resources → Contains the images for reporting
+
+
 
 
 
