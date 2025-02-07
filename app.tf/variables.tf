@@ -28,6 +28,9 @@ variable "bastion_definition" {
   default     = {}
 }
 
+variable "api_gateways" {
+  default = {}
+}
 variable "cluster_endpoint_public_access" {
 
 }

@@ -65,3 +65,29 @@ bastion_definition = {
   }
 }
 cluster_endpoint_public_access = true
+
+api_gateways = {
+  "rest_weather" = {
+    aws_api_gateway_rest_api_name        = "rest-weather-simple"
+    aws_api_gateway_rest_api_description = "porpose for test the rest weather"
+    api_gateway_protocol                 = "HTTP"
+    authorizers                          = {}
+    allow_methods                        = ["POST", "GET"]
+    allow_origins                        = ["*"]
+    allow_headers                        = ["content-type", "x-amz-date", "authorization", "x-api-key", "x-amz-security-token", "x-amz-user-agent"]
+    fail_on_warnings                     = false
+    create_domain_name                   = false
+    routes = {
+      "GET /" = {
+        integration = {
+          type   = "HTTP_PROXY"
+          uri    = "https://max-weather.free.beeceptor.com"
+          method = "GET"
+        }
+      }
+    }
+    ext-tags = {
+      "fucnt" = "demo-tf"
+    }
+  }
+}
