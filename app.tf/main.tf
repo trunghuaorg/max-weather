@@ -79,3 +79,27 @@ module "ec2" {
   )
 
 }
+
+#CALLING MODULE API GATEWAY
+module "apigateway" {
+  source                               = "./_modules/apigateway"
+  for_each                             = var.api_gateways
+  aws_api_gateway_rest_api_name        = each.value.aws_api_gateway_rest_api_name
+  aws_api_gateway_rest_api_description = each.value.aws_api_gateway_rest_api_description
+  api_gateway_protocol                 = each.value.api_gateway_protocol
+  create_domain_name                   = each.value.create_domain_name
+  authorizers                          = each.value.authorizers
+  routes                               = each.value.routes
+  allow_methods                        = each.value.allow_methods
+  allow_headers                        = each.value.allow_headers
+  allow_origins                        = each.value.allow_origins
+  fail_on_warnings                     = each.value.fail_on_warnings
+
+  tags = merge(
+    var.default_tags,
+    each.value.ext-tags,
+    {
+      "ext-env" : terraform.workspace
+    }
+  )
+}
