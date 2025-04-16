@@ -30,7 +30,7 @@ jobs:
 
     - name: Build Docker image
       run: |
-        docker build -f app.api/app.dockerfile  -t trunghuaorg/max-weather:${{ github.sha }} .
+        docker build -f app.api/app.dockerfile  -t trunghua75/max-weather:${{ github.sha }} .
       
     - name: Push Docker image to Docker hub
       run: |
