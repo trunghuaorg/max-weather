@@ -34,7 +34,7 @@ jobs:
       
     - name: Push Docker image to Docker hub
       run: |
-        docker push quyencl91/max-weather:${{ github.sha }}
+        docker push trunghuaorg/max-weather:${{ github.sha }}
 
   deploy:
     needs: build
