@@ -10,7 +10,7 @@ variable "cidrvpc" {
 
 variable "default_tags" {
   default = {
-    Owner = "quyennv"
+    Owner = "user58"
   }
 }
 

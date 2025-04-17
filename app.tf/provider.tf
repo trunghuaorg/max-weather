@@ -13,7 +13,7 @@ terraform {
 }
 
 provider "aws" {
-  region  = "ap-southeast-1" # switch other ap-southeast-1 or
-  profile = "quyennv-devops"
+  region  = "eu-west-1" # switch other ap-southeast-1 or
+  profile = "u58-devops"
 }
 provider "random" {}
