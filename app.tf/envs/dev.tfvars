@@ -27,11 +27,11 @@ eks_config = {
       username = "DE000058"
       groups   = ["system:masters"]
     },
-    {
-      userarn  = "arn:aws:iam::539247450054:user/u58-devops"
-      username = "u58-devops"
-      groups   = ["system:masters"]
-    },
+    # {
+    #   userarn  = "arn:aws:iam::539247450054:user/u58-devops"
+    #   username = "u58-devops"
+    #   groups   = ["system:masters"]
+    # },
   ]
   cluster_endpoint_public_access_cidrs = ["0.0.0.0/0"],
   eks_cw_logging                       = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
