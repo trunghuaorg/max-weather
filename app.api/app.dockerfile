@@ -19,11 +19,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Set working directory
 WORKDIR /app
 
-# Tạo thư mục logs và gán quyền                              # THÊM 
-RUN mkdir -p /app/logs/info /app/logs/error /app/logs/debug /app/logs/warning
-
-RUN chmod -R 777 /app/logs
-
 # Copy and install dependencies securely
 COPY --chown=appuser:appgroup app.api/requirements.txt .
 RUN pip3 install --no-cache-dir --requirement requirements.txt
@@ -36,6 +31,10 @@ RUN chmod -R 755 /app
 
 # Switch to non-root user
 USER appuser
+
+# Tạo thư mục logs và gán quyền                              # THÊM 
+RUN mkdir -p /app/logs/info /app/logs/error /app/logs/debug /app/logs/warning
+RUN chmod -R 777 /app/logs
 
 # Set the entrypoint and command
 ENTRYPOINT [ "python3" ]
