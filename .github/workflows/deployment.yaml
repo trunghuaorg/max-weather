@@ -66,7 +66,7 @@ jobs:
         fi
         echo "current env deploy: ${ENV}"
         sed -i "s|ENV|${ENV}|g" app.api/k8s/manifest.yaml
-        sed -i "s|CONTAINER_REGISTRY_BASE_URI|quyencl91/max-weather:${{ github.sha }}|g" app.api/k8s/manifest.yaml
+        sed -i "s|CONTAINER_REGISTRY_BASE_URI|trunghuaorg/max-weather:${{ github.sha }}|g" app.api/k8s/manifest.yaml
 
         echo "viewing the manifest"
         cat app.api/k8s/manifest.yaml
@@ -85,7 +85,7 @@ jobs:
             ENV=dev
           fi
           echo "Process TVT"
-          URL="https://${ENV}-api.quyennv.com/v1/ping"
+          URL="https://${ENV}-api.odoo.id.vn/v1/ping"
           MAX_RETRIES=5
           DELAY=2
           attempt=0
