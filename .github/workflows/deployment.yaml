@@ -64,7 +64,7 @@ jobs:
 
     - name: Apply Kubernetes manifest
       run: |
-        ENV=dev
+        ENV=prod
         if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
           ENV=dev
         fi
@@ -85,7 +85,7 @@ jobs:
 
       - name: Run multiple shell commands
         run: |
-          ENV=dev
+          ENV=prod
           if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
             ENV=dev
           fi
