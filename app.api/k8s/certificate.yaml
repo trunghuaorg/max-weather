@@ -1,0 +1,15 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: app-tls-cert
+  namespace: max-weather-ENV
+spec:
+  secretName: app-tls
+  dnsNames:
+    - ENV-api.odoo.id.vn
+  duration: 8760h
+  renewBefore: 24h
+  issuerRef:
+    group: cert-manager.k8s.cloudflare.com
+    kind: OriginIssuer
+    name: ENV-issuer
