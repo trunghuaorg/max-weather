@@ -73,7 +73,7 @@ spec:
       targetPort: 8086 #ingress port ~ containerPort
   selector:
     app: backend-api
-  type: ClusterIP
+  type: LoadBalancer # đổi thành ClusterIP
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
