@@ -1,10 +1,11 @@
 name: Deploy APP to K8s on AWS
 
 on:
-  push:
-    branches:
-      - dev 
-      - main # Trigger action on pushes to main branch
+  # push:
+  #   branches:
+  #     - dev 
+  #     - main # Trigger action on pushes to main branch
+  workflow_dispatch:
 
 jobs:
   
