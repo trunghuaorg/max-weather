@@ -73,6 +73,7 @@ jobs:
         cat app.api/k8s/manifest.yaml
         kubectl apply -f app.api/k8s/manifest.yaml
         kubectl rollout status deployment/app-api -n max-weather-${ENV}
+  
   tvt:
     needs: deploy
     runs-on: ubuntu-latest
