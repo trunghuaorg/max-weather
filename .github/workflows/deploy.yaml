@@ -83,7 +83,7 @@ jobs:
 
       - name: Run multiple shell commands
         run: |
-          ENV=prod
+          ENV=dev
           if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
             ENV=dev
           fi
