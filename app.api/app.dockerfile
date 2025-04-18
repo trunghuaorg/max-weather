@@ -26,15 +26,14 @@ RUN pip3 install --no-cache-dir --requirement requirements.txt
 # Copy the rest of the application files
 COPY --chown=appuser:appgroup . .
 
+# Tạo thư mục logs và gán quyền                              # THÊM 
+RUN mkdir -p /app/logs/info /app/logs/error /app/logs/debug /app/logs/warning
+
 # Change ownership and permissions
-RUN chmod -R 755 /app
+RUN chmod -R 755 /app && chmod -R 777 /app/logs
 
 # Switch to non-root user
 USER appuser
-
-# Tạo thư mục logs và gán quyền                              # THÊM 
-RUN mkdir -p /app/logs/info /app/logs/error /app/logs/debug /app/logs/warning
-RUN chmod -R 777 /app/logs
 
 # Set the entrypoint and command
 ENTRYPOINT [ "python3" ]
