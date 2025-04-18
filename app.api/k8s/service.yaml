@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-backend-api
+  namespace: max-weather-ENV
+spec:
+  ports:
+    - port: 80 #egress port 
+      targetPort: 8086 #ingress port ~ containerPort
+  selector:
+    app: backend-api
+  type: LoadBalancer # đổi thành ClusterIP

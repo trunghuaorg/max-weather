@@ -1,4 +1,4 @@
-name: Build, Push and Deploy to Kubernetes
+name: Deploy APP to K8s on AWS
 
 on:
   push:
@@ -15,18 +15,10 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.x'
-
-    # - name: Display current user
-    #   run: whoami
-
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
 
-    - name: Log in to Docker container Registry
+    - name: Log in to Docker Hub
       uses: docker/login-action@v3
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -58,26 +50,32 @@ jobs:
     - name: Update kube config
       run: aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }} --region ${{ secrets.AWS_REGION }}
 
-
-    # - name: Install cert-manager CRDs
-    #   run: kubectl apply -f https://github.com/cert-manager/cert-manager/releases/latest/download/cert-manager.crds.yaml
-
-    - name: Apply Kubernetes manifest
+    - name: Deploy K8s
       run: |
-        ENV=prod
+        ENV=dev
         if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
           ENV=dev
         fi
-        echo "current env deploy: ${ENV}"
-        sed -i "s|ENV|${ENV}|g" app.api/k8s/manifest.yaml
-        sed -i "s|CONTAINER_REGISTRY_BASE_URI|trunghua75/max-weather:${{ github.sha }}|g" app.api/k8s/manifest.yaml
+        
+        echo "Current environment deploy: ${ENV}"
+        sed -i "s|ENV|${ENV}|g" app.api/k8s/deployment.yaml
+        sed -i "s|CONTAINER_REGISTRY_BASE_URI|trunghua75/max-weather:${{ github.sha }}|g" app.api/k8s/deployment.yaml
+        sed -i "s|ENV|${ENV}|g" app.api/k8s/service.yaml
+        sed -i "s|ENV|${ENV}|g" app.api/k8s/ingress.yaml   
 
-        echo "viewing the manifest"
-        cat app.api/k8s/manifest.yaml
-        kubectl apply -f app.api/k8s/manifest.yaml
+        echo "Viewing deployment details"
+        cat app.api/k8s/deployment.yaml
+        cat app.api/k8s/service.yaml
+        cat app.api/k8s/ingress.yaml
+
+        kubectl apply -f app.api/k8s/deployment.yaml
+        kubectl apply -f app.api/k8s/service.yaml
+        kubectl apply -f app.api/k8s/ingress.yaml
+
+        echo "Checking deployment status"
         kubectl rollout status deployment/app-api -n max-weather-${ENV}
   
-  tvt:
+  testing:
     needs: deploy
     runs-on: ubuntu-latest
 
@@ -89,7 +87,8 @@ jobs:
           if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
             ENV=dev
           fi
-          echo "Process TVT"
+
+          echo "Process testing"
           URL="https://${ENV}-api.odoo.id.vn/v1/ping"
           MAX_RETRIES=5
           DELAY=2
