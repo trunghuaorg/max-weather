@@ -1,7 +1,5 @@
 **PROJECT DIAGRAM**
 
-![alt text](report-resources/Infra%20diagram.drawio.png)
-
 **PROJECT STRUCTURE**
 
 1. app.api → Contains the API implementation with a self-implemented OAuth2 system. The codebase is written in Python.
@@ -16,14 +14,9 @@
 The repository has two branches: dev and main.
 
 **CICD PIPELINE**
+
 the cicd pipeline
 ![alt text](report-resources/cicd.png)
-
-build: will processed step build docker image to private repo in my dockerhub
-
-deploy: will update the manifest to deploy the eks cluster
-
-tvt: is step verify that is application up
 
 **POSTMAN TEST**
 
