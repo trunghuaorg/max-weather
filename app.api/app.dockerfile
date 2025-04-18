@@ -20,14 +20,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 # Tạo thư mục logs và gán quyền                              # THÊM 
-RUN mkdir -p /app/logs && \
-    mkdir -p /app/app.api/logs/error && \
-    mkdir -p /app/app.api/logs/info && \
-    mkdir -p /app/app.api/logs/debug && \
-    mkdir -p /app/app.api/logs/warning && \
-    chown -R 1000:1000 /app/app.api/logs && \
-    chmod -R 777 /app/app.api/logs 
-    
+RUN mkdir -p /app/logs/info /app/logs/error /app/logs/debug /app/logs/warning && \
+    chmod -R 777 /app/logs
+
 # Copy and install dependencies securely
 COPY --chown=appuser:appgroup app.api/requirements.txt .
 RUN pip3 install --no-cache-dir --requirement requirements.txt
