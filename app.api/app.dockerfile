@@ -20,7 +20,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 # Tạo thư mục logs và gán quyền                              # THÊM 
-RUN mkdir -p /app/logs && chmod -R 777 /app/logs
+RUN mkdir -p /app/logs /app/logs/info && chmod -R 777 /app/logs
 
 # Copy and install dependencies securely
 COPY --chown=appuser:appgroup app.api/requirements.txt .
