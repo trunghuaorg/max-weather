@@ -21,7 +21,7 @@ WORKDIR /app
 
 # Tạo thư mục logs và gán quyền                              # THÊM 
 RUN mkdir -p /app/logs/info /app/logs/error /app/logs/debug /app/logs/warning && \
-    chown -R nobody:nogroup /app/logs && chmod -R 777 /app/logs && chmod 777 /app/logs/info/*   # Đảm bảo quyền ghi cho tất cả các tệp trong thư mục
+    chown -R nobody:nogroup /app/logs && chmod -R 777 /app/logs && chmod 777 /app/logs/info/*   
 
 # Copy and install dependencies securely
 COPY --chown=appuser:appgroup app.api/requirements.txt .
