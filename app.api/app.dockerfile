@@ -23,6 +23,8 @@ WORKDIR /app
 RUN mkdir -p /app/logs && \
     mkdir -p /app/app.api/logs/error && \
     mkdir -p /app/app.api/logs/info && \
+    mkdir -p /app/app.api/logs/debug && \
+    mkdir -p /app/app.api/logs/warning && \
     chmod -R 777 /app/app.api/logs
 
 # Copy and install dependencies securely
