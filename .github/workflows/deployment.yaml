@@ -20,8 +20,8 @@ jobs:
       with:
         python-version: '3.x'
 
-    - name: Display current user
-      run: whoami
+    # - name: Display current user
+    #   run: whoami
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
