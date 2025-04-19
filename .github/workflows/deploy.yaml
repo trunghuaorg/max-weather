@@ -1,15 +1,43 @@
 name: Deploy APP to K8s on AWS
 
 on:
-  # push:
-  #   branches:
-  #     - dev 
-  #     - main # Trigger action on pushes to main branch
-  workflow_dispatch:
-
-jobs:
+  push:
+    branches:
+      - dev 
+      - main # Trigger action on pushes to main branch
+env:
+  ENV: dev
   
+jobs:
+
+  infra:
+    name: Infra Provisioning
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: 1.6.6
+
+    - name: Create or Select Terraform Workspace
+      run: |
+        terraform workspace new $ENV || terraform workspace select $ENV
+
+    - name: Terraform Init with Backend Config
+      run: terraform init -backend-config=${ENV}.conf
+
+    - name: Terraform Plan
+      run: terraform plan -var-file=envs/${ENV}.tfvars
+
+    - name: Terraform Apply (Auto-Approve)
+      run: terraform apply -auto-approve -var-file=envs/${ENV}.tfvars
+ 
   build:
+    needs: infra
     runs-on: ubuntu-latest
 
     steps:
@@ -53,11 +81,6 @@ jobs:
 
     - name: Deploy K8s
       run: |
-        ENV=dev
-        if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
-          ENV=dev
-        fi
-        
         echo "Current environment deploy: ${ENV}"
         sed -i "s|ENV|${ENV}|g" app.api/k8s/deployment.yaml
         sed -i "s|CONTAINER_REGISTRY_BASE_URI|trunghua75/max-weather:${{ github.sha }}|g" app.api/k8s/deployment.yaml
@@ -84,11 +107,6 @@ jobs:
 
       - name: Run multiple shell commands
         run: |
-          ENV=dev
-          if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
-            ENV=dev
-          fi
-
           echo "Process testing"
           URL="https://${ENV}-api.odoo.id.vn/v1/ping"
           MAX_RETRIES=5
@@ -109,7 +127,6 @@ jobs:
                   sleep $DELAY
               fi
           done
-
           # If all attempts fail, throw an error
           echo "Error: URL test failed after $MAX_RETRIES attempts."
           exit 1
