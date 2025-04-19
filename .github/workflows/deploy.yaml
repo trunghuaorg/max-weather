@@ -36,18 +36,16 @@ jobs:
 
     - name: Create or Select Terraform Workspace
       run: |
-        terraform workspace new ${{ env.ENV }} 
-        terraform workspace select ${{ env.ENV }}
-        current_tfwsp=$(terraform workspace show)
+        terraform workspace new ${{ env.ENV }} || terraform workspace select ${{ env.ENV }}
 
     - name: Terraform Init with Backend Config
       run: terraform init -backend-config=${{ env.ENV }}.conf
 
     - name: Terraform Plan
-      run: terraform plan -var-file=envs/${current_tfwsp}.tfvars
+      run: terraform plan -var-file=envs/${{ env.ENV }}.tfvars
 
     - name: Terraform Apply (Auto-Approve)
-      run: terraform apply -var-file=envs/${current_tfwsp}.tfvars
+      run: terraform apply -auto-approve -var-file=envs/${{ env.ENV }}.tfvars
  
   build:
     needs: infra
