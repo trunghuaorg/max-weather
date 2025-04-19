@@ -2,17 +2,17 @@ name: Deploy APP to K8s on AWS
 
 on:
 
-  workflow_dispatch:
-    inputs:
-      env:
-        description: "Environment to deploy (dev/prod)"
-        required: true
-        default: dev
+  # workflow_dispatch:
+  #   inputs:
+  #     env:
+  #       description: "Environment to deploy (dev/prod)"
+  #       required: true
+  #       default: dev
 
-  # push:
-  #   branches:
-  #     - dev 
-  #     - main # Trigger action on pushes to main branch
+  push:
+    branches:
+      - dev 
+      - main # Trigger action on pushes to main branch
   
 env:
   ENV: dev
@@ -56,12 +56,12 @@ jobs:
       with:
         terraform_version: 1.6.6
 
+    - name: Terraform Init with Backend Config
+      run: terraform init -backend-config=${{ env.ENV }}.conf -reconfigure
+
     - name: Create or Select Terraform Workspace
       run: |
         terraform workspace new ${{ env.ENV }} || terraform workspace select ${{ env.ENV }}
-
-    - name: Terraform Init with Backend Config
-      run: terraform init -backend-config=${{ env.ENV }}.conf -reconfigure
 
     - name: Terraform Plan
       run: terraform plan -var-file=envs/${{ env.ENV }}.tfvars
