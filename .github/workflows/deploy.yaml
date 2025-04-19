@@ -92,22 +92,40 @@ jobs:
         echo "arn=$ARN" >> $GITHUB_OUTPUT
         echo "username=$(echo $ARN | awk -F'/' '{print $NF}')" >> $GITHUB_OUTPUT
 
-    - name: Grant access to EKS cluster
+    - name: Grant access to EKS cluster (if not exists)
       run: |
-        aws eks create-access-entry \
-          --cluster-name $CLUSTER_NAME \
-          --principal-arn ${{ steps.identity.outputs.arn }} \
-          --type STANDARD \
-          --user ${{ steps.identity.outputs.username }} \
-          --kubernetes-groups Viewers \
-          --region $AWS_REGION
+        PRINCIPAL_ARN="${{ steps.identity.outputs.arn }}"
+        USERNAME="${{ steps.identity.outputs.username }}"
+        CLUSTER_NAME="${{ env.CLUSTER_NAME }}"
+        AWS_REGION="${{ env.AWS_REGION }}"
 
+        echo "Checking existing access entry for $PRINCIPAL_ARN..."
+
+        ENTRY_EXISTS=$(aws eks list-access-entries \
+          --cluster-name "$CLUSTER_NAME" \
+          --region "$AWS_REGION" \
+          --output json | jq -r '.accessEntries[].principalArn' | grep "$PRINCIPAL_ARN" || true)
+
+        if [ -z "$ENTRY_EXISTS" ]; then
+          echo "Creating access entry for $PRINCIPAL_ARN"
+          aws eks create-access-entry \
+            --cluster-name "$CLUSTER_NAME" \
+            --principal-arn "$PRINCIPAL_ARN" \
+            --type STANDARD \
+            --user "$USERNAME" \
+            --kubernetes-groups Viewers \
+            --region "$AWS_REGION"
+        else
+          echo "Access entry already exists for $PRINCIPAL_ARN. Skipping creation."
+        fi
+
+        echo "Associating AmazonEKSClusterAdminPolicy to $PRINCIPAL_ARN"
         aws eks associate-access-policy \
-          --cluster-name $CLUSTER_NAME \
+          --cluster-name "$CLUSTER_NAME" \
           --access-scope type=cluster \
-          --principal-arn ${{ steps.identity.outputs.arn }} \
+          --principal-arn "$PRINCIPAL_ARN" \
           --policy-arn arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy \
-          --region $AWS_REGION
+          --region "$AWS_REGION"
 
     - name: Update kubeconfig
       run: |
@@ -173,7 +191,7 @@ jobs:
           --namespace cert-manager \
           --set installCRDs=true \
           --version v1.14.2
-          
+
     - name: Deploy K8s
       run: |
         echo "Current environment deploy: ${{ env.ENV }}"
