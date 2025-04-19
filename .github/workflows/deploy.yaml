@@ -35,10 +35,10 @@ jobs:
       run: terraform init -backend-config=${{ env.ENV }}.conf
 
     - name: Terraform Plan
-      run: terraform plan -var-file=app.tf/envs/${{ env.ENV }}.tfvars
+      run: terraform plan -var-file=envs/${{ env.ENV }}.tfvars
 
     - name: Terraform Apply (Auto-Approve)
-      run: terraform apply -auto-approve -var-file=app.tf/envs/${{ env.ENV }}.tfvars
+      run: terraform apply -auto-approve -var-file=envs/${{ env.ENV }}.tfvars
  
   build:
     needs: infra
