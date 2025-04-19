@@ -1,0 +1,40 @@
+name: Terraform Destroy (Manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      env:
+        description: "Environment to destroy (e.g., dev, staging, prod)"
+        required: true
+        default: dev
+
+jobs:
+  destroy:
+    name: Terraform Destroy
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: app.tf  # Đảm bảo thư mục này tồn tại và chứa các file .tf
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.6
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+
+      - name: Terraform Init (Local backend)
+        run: terraform init
+
+      - name: Terraform Destroy (Local state)
+        run: terraform destroy -auto-approve -var-file=envs/${{ github.event.inputs.env }}.tfvars
