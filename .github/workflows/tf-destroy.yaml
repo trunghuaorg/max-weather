@@ -1,0 +1,50 @@
+name: Terraform Destroy (Manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      env:
+        description: "Environment to destroy (e.g., dev, staging, prod)"
+        required: true
+        default: dev
+
+jobs:
+  destroy:
+    name: Terraform Destroy
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./terraform 
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.6
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1 
+
+      - name: Terraform Init with backend
+        run: |
+          terraform init \
+            -backend-config="bucket=u58-tf-state" \
+            -backend-config="key=envs/${{ github.event.inputs.env }}/u58-tf.tfstate" \
+            -backend-config="region=eu-west-1" \
+            -backend-config="dynamodb_table=u58-tf-locks" \
+            -backend-config="encrypt=true"
+
+      - name: Select or create workspace
+        run: |
+          terraform workspace select ${{ github.event.inputs.env }} || terraform workspace new ${{ github.event.inputs.env }}
+
+      - name: Terraform Destroy
+        run: terraform destroy -auto-approve -var-file=envs/${{ github.event.inputs.env }}.tfvars
