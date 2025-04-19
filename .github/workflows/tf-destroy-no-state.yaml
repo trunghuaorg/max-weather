@@ -1,4 +1,4 @@
-name: Terraform Destroy (Manual)
+name: Terraform Destroy No State (Manual)
 
 on:
   workflow_dispatch:

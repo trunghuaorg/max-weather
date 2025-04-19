@@ -12,15 +12,15 @@ terraform {
   }
 }
 
-terraform {
-  backend "s3" {
-    bucket         = "u58-tf-state"
-    key            = "u58-tf.tfstate"
-    region         = "eu-west-1"
-    dynamodb_table = "u58-tf-locks"
-    encrypt        = true
-  }
-}
+# terraform {
+#   backend "s3" {
+#     bucket         = "u58-tf-state"
+#     key            = "u58-tf.tfstate"
+#     region         = "eu-west-1"
+#     dynamodb_table = "u58-tf-locks"
+#     encrypt        = true
+#   }
+# }
 
 provider "aws" {
   region     = var.aws_region
