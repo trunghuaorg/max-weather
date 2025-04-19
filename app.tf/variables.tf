@@ -69,6 +69,7 @@ variable "eks_config" {
 variable "aws_region" {
   description = "AWS Region"
   type        = string
+  default     = "eu-west-1"  
 }
 
 variable "aws_access_key" {
