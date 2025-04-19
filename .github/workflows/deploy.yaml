@@ -1,10 +1,19 @@
 name: Deploy APP to K8s on AWS
 
 on:
-  push:
-    branches:
-      - dev 
-      - main # Trigger action on pushes to main branch
+
+  workflow_dispatch:
+    inputs:
+      env:
+        description: "Environment to deploy (dev/prod)"
+        required: true
+        default: dev
+
+  # push:
+  #   branches:
+  #     - dev 
+  #     - main # Trigger action on pushes to main branch
+  
 env:
   ENV: dev
   
