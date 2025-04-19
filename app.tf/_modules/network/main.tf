@@ -7,18 +7,6 @@ locals {
   identify = random_integer.this.result
 }
 
-resource "aws_cloudwatch_log_group" "vpc_flow_logs" {
-  name              = "/aws/vpc/flow-logs/${var.vpc_name}"
-  retention_in_days = 14
-
-  lifecycle {
-    prevent_destroy       = true
-    create_before_destroy = true
-  }
-
-  tags = var.default_tags
-}
-
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "5.13.0"
@@ -40,9 +28,12 @@ module "vpc" {
   create_database_subnet_route_table     = var.create_database_subnet_route_table
   create_database_internet_gateway_route = var.create_database_internet_gateway_route
 
-  enable_flow_log                        = var.enable_flow_log
-  vpc_flow_log_iam_role_name             = "${var.vpc_name}-${local.identify}-follow-log-role"
-  create_flow_log_cloudwatch_iam_role    = var.create_flow_log_cloudwatch_iam_role
+  enable_flow_log                       = var.enable_flow_log
+  vpc_flow_log_iam_role_name            = "${var.vpc_name}-${local.identify}-follow-log-role"
+  vpc_flow_log_iam_role_use_name_prefix = false
+  create_flow_log_cloudwatch_iam_role   = var.create_flow_log_cloudwatch_iam_role
+  create_flow_log_cloudwatch_log_group  = var.create_flow_log_cloudwatch_log_group
+  flow_log_max_aggregation_interval     = 60
 
   public_subnet_tags = {
     "kubernetes.io/role/elb"                    = 1

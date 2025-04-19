@@ -67,6 +67,5 @@ variable "eks_config" {
 }
 
 variable "aws_region" {
-  description = "AWS region"
-  type        = string
+
 }
