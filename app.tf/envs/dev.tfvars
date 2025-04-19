@@ -1,4 +1,4 @@
-
+aws_region                             = "eu-west-1"
 env_prefix                             = "dev"
 vpc_name                               = "dev_env"
 cidrvpc                                = "10.0.0.0/16"
