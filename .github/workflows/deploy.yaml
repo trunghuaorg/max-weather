@@ -25,20 +25,24 @@ jobs:
 
     - name: Create or Select Terraform Workspace
       run: |
-        terraform workspace new $ENV || terraform workspace select $ENV
+        terraform workspace new ${{ env.ENV }} || terraform workspace select ${{ env.ENV }}
 
     - name: Terraform Init with Backend Config
-      run: terraform init -backend-config=${ENV}.conf
+      run: terraform init -backend-config=${{ env.ENV }}.conf
 
     - name: Terraform Plan
-      run: terraform plan -var-file=app.tf/envs/${ENV}.tfvars
+      run: terraform plan -var-file=app.tf/envs/${{ env.ENV }}.tfvars
 
     - name: Terraform Apply (Auto-Approve)
-      run: terraform apply -auto-approve -var-file=app.tf/envs/${ENV}.tfvars
+      run: terraform apply -auto-approve -var-file=app.tf/envs/${{ env.ENV }}.tfvars
  
   build:
     needs: infra
     runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: app.tf  
 
     steps:
     - name: Checkout repository
@@ -81,11 +85,11 @@ jobs:
 
     - name: Deploy K8s
       run: |
-        echo "Current environment deploy: ${ENV}"
-        sed -i "s|ENV|${ENV}|g" app.api/k8s/deployment.yaml
+        echo "Current environment deploy: ${{ env.ENV }}"
+        sed -i "s|ENV|${{ env.ENV }}|g" app.api/k8s/deployment.yaml
         sed -i "s|CONTAINER_REGISTRY_BASE_URI|trunghua75/max-weather:${{ github.sha }}|g" app.api/k8s/deployment.yaml
-        sed -i "s|ENV|${ENV}|g" app.api/k8s/service.yaml
-        sed -i "s|ENV|${ENV}|g" app.api/k8s/ingress.yaml   
+        sed -i "s|ENV|${{ env.ENV }}|g" app.api/k8s/service.yaml
+        sed -i "s|ENV|${{ env.ENV }}|g" app.api/k8s/ingress.yaml   
 
         echo "Viewing deployment details"
         cat app.api/k8s/deployment.yaml
@@ -97,7 +101,7 @@ jobs:
         kubectl apply -f app.api/k8s/ingress.yaml
 
         echo "Checking deployment status"
-        kubectl rollout status deployment/app-api -n max-weather-${ENV}
+        kubectl rollout status deployment/app-api -n max-weather-${{ env.ENV }}
   
   testing:
     needs: deploy
@@ -108,7 +112,7 @@ jobs:
       - name: Run multiple shell commands
         run: |
           echo "Process testing"
-          URL="https://${ENV}-api.odoo.id.vn/v1/ping"
+          URL="https://${{ env.ENV }}-api.odoo.id.vn/v1/ping"
           MAX_RETRIES=5
           DELAY=2
           attempt=0
