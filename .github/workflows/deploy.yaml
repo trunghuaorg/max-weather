@@ -20,7 +20,7 @@ env:
 jobs:
 
   infra:
-    name: Infra Provisioning
+    name: InfraProvision
     runs-on: ubuntu-latest
 
     defaults:
@@ -70,7 +70,7 @@ jobs:
       run: terraform apply -auto-approve -var-file=envs/${{ env.ENV }}.tfvars
 
   init-kubeconfig:
-    name: Init Kubeconfig
+    name: Init
     needs: infra
     runs-on: ubuntu-latest
 
@@ -128,7 +128,7 @@ jobs:
         kubectl get namespace -A 
 
   build:
-    name: Build & Push Image
+    name: Build
     needs: init-kubeconfig
     runs-on: ubuntu-latest
 
@@ -154,7 +154,7 @@ jobs:
         docker push trunghua75/max-weather:${{ github.sha }}
 
   deploy:
-    name: Deploy to EKS
+    name: Deploy
     needs: build
     runs-on: ubuntu-latest
 
@@ -202,8 +202,10 @@ jobs:
 
         echo "Checking deployment status"
         kubectl rollout status deployment/app-api -n max-weather-${{ env.ENV }}
-  
+        kubectl rollout status deployment/app-api -n max-weather-${{ env.ENV }} --timeout=5m || echo "Timeout reached or deployment failed"
+        
   testing:
+    name: Testing
     needs: deploy
     runs-on: ubuntu-latest
 

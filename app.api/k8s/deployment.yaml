@@ -10,6 +10,11 @@ metadata:
   namespace: max-weather-ENV
 spec:
   replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
   selector:
     matchLabels:
       app: backend-api
@@ -18,6 +23,7 @@ spec:
       labels:
         app: backend-api
     spec:
+      terminationGracePeriodSeconds: 5
       nodeSelector:
         "kubernetes.io/os": linux
       affinity:
