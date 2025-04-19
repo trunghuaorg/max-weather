@@ -14,6 +14,10 @@ jobs:
     name: Infra Provisioning
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: app.tf  
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
@@ -39,10 +43,6 @@ jobs:
   build:
     needs: infra
     runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: app.tf  
 
     steps:
     - name: Checkout repository
